@@ -22,7 +22,8 @@ describe('simplify', function() {
 
   it('should simplify rational expressions with no symbols to fraction', function() {
     simplifyAndCompare('3*4', '12');
-    simplifyAndCompare('3+2/4', '7/2');
+    simplifyAndCompare('3+2/4', '7/2'); // #811
+    simplifyAndCompare('3+1/3', '10/3'); // #811
   });
 
   it('should preserve the value of BigNumbers', function() {
@@ -32,6 +33,13 @@ describe('simplify', function() {
     assert.deepEqual(bigmath.simplify('1/2 + 11111111111111111111').eval(), bigmath.eval('11111111111111111111.5'));
     assert.deepEqual(bigmath.simplify('1/3 + 11111111111111111111').eval(), bigmath.eval('11111111111111111111.33333333333333333333333333333333333333333333'));
     assert.deepEqual(bigmath.simplify('3 + 1 / 11111111111111111111').eval(), bigmath.eval('3 + 1 / 11111111111111111111'));
+  });
+
+  it('should simplify BigNumbers', function() {
+    var bigmath = math.create({number: 'BigNumber', precision: 64});
+
+    //TODO #857: assert.deepEqual(bigmath.simplify(bigmath.parse("1/3")).toString(), "1 / 3");
+    assert.deepEqual(bigmath.simplify(bigmath.parse("1/2")).toString(), "0.5");
   });
 
   it('should not change the value of numbers when converting to fractions (1)', function() {
@@ -52,6 +60,22 @@ describe('simplify', function() {
     simplifyAndCompareEval('(1e-5)^2', '(1e-5)^2');
     simplifyAndCompareEval('min(1, -1e-10)', '-1e-10');
     simplifyAndCompareEval('max(1e-10, -1)', '1e-10');
+  });
+
+  it("should simplify 0 and 1 identities", function() {
+    simplifyAndCompare('0*x', '0');
+    simplifyAndCompare('x*0', '0');
+    simplifyAndCompare('0+x', 'x');
+    simplifyAndCompare('+x', 'x'); // #811
+    simplifyAndCompare('x+0', 'x');
+    //TODO simplifyAndCompare('0-x', '-x'); // #811
+    simplifyAndCompare('x-0', 'x');
+    simplifyAndCompare('x^0', '1');
+    simplifyAndCompare('1*x', 'x');
+    simplifyAndCompare('x*1', 'x');
+    simplifyAndCompare('x*1', 'x');
+    simplifyAndCompare('x/1', 'x');
+    simplifyAndCompare('x/x', '1'); // #811
   });
 
   it('should simplify non-rational expressions with no symbols to number', function() {
